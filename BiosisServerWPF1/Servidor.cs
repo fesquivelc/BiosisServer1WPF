@@ -53,6 +53,7 @@ namespace BiosisServerWPF1
         {
             this.callback.mensajeConsola("Deteniendo servidor...");
             this.tcpListener.Server.Close();
+            Thread.Sleep(500);
             this.servidorActivo = false;
             this.callback.mensajeConsola("Servidor detenido");
         }
@@ -66,9 +67,17 @@ namespace BiosisServerWPF1
                 NetworkStream stream = tcpClient.GetStream();
                 if (stream.CanRead)
                 {
-                    StreamReader readerStream = new StreamReader(stream);
-                    string myMessage = readerStream.ReadToEnd();
-                    readerStream.Close();
+                    byte[] data = new byte[tcpClient.ReceiveBufferSize];
+                    int bytesRead = stream.Read(data, 0, Convert.ToInt32(tcpClient.ReceiveBufferSize));
+                    string request = Encoding.UTF8.GetString(data, 0, bytesRead);
+                    this.callback.mensajeConsola("Request: " + request);
+
+                    byte[] msg = Encoding.UTF8.GetBytes(request + " RETORNO");
+                    stream.Write(msg, 0, msg.Length);
+                    this.callback.mensajeConsola("Response: " + Encoding.UTF8.GetString(msg)+" TAMAÑO: "+msg.Length);
+                    //StreamReader readerStream = new StreamReader(stream);
+                    //string myMessage = readerStream.ReadToEnd();
+                    //readerStream.Close();
                 }
                 stream.Close();
                 tcpClient.Close();
@@ -76,6 +85,7 @@ namespace BiosisServerWPF1
             }
             catch (Exception e)
             {
+                this.callback.mensajeConsola(e.ToString());
                 Console.WriteLine(e.ToString());
             }
         }

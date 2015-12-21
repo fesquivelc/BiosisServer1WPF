@@ -38,7 +38,7 @@ namespace BiosisServerWPF1
 
         private void btnIniciar_Click(object sender, RoutedEventArgs e)
         {
-            int puerto = 5666;
+            int puerto = 5678;
             if (!this.servidor.servidorActivo)
             {
                 servidor.iniciarServidor(puerto);
